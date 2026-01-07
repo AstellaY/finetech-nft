@@ -1,0 +1,12 @@
+#Prevents Git from tracking virtual env, cache files, or system files
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+
+# macOS
+.DS_Store
