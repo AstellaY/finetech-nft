@@ -42,27 +42,29 @@ def main():
     
     col1, col2 = st.columns(2)
     
-    with col1:
-        if st.button("🆕 Generate New Wallet"):
-            wallet = xrpl_utils.generate_test_wallet(client)
-            st.session_state.wallet = wallet
-            st.success("Wallet generated!")
-    
-    with col2:
-        seed_input = st.text_input("Or paste existing seed to import wallet")
-        if seed_input and st.button("📥 Import Wallet"):
-            try:
-                from xrpl.wallet import Wallet
-                wallet = Wallet.from_seed(seed_input)
-                st.session_state.wallet = wallet
-                st.success("Wallet imported!")
-            except Exception as e:
-                st.error(f"Invalid seed: {e}")
+    if st.session_state.wallet is None: 
+        with col1:
+            if st.button("🆕 Generate New Wallet"):
+                with st.spinner("Generating Wallet"):
+                    wallet = xrpl_utils.generate_test_wallet(client)
+                    st.session_state.wallet = wallet
+                    st.rerun()
+        
+        with col2:
+            seed_input = st.text_input("Or paste existing seed to import wallet")
+            if seed_input and st.button("📥 Import Wallet"):
+                try:
+                    from xrpl.wallet import Wallet
+                    wallet = Wallet.from_seed(seed_input)
+                    st.session_state.wallet = wallet
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Invalid seed: {e}")
     
     # Display wallet info if wallet is ready
-    if st.session_state.wallet:
-        st.markdown("---")
-        st.subheader("💼 Your Wallet Details")
+    else:
+        wallet = st.session_state.wallet
+        st.header("💼 Your Wallet Details")
         
         wallet = st.session_state.wallet
         st.write(MSG_PUBLIC_KEY, wallet.public_key)
@@ -72,6 +74,26 @@ def main():
         
         bal = xrpl_utils.get_account_balance(client, wallet.classic_address)
         st.write(MSG_WALLET_BALANCE, bal)
+        
+        if st.button("View NFT Holdings"):
+            with st.spinner("Fetching NFTs from your collection"):
+                from xrpl.models.requests import AccountNFTs
+                acct_nfts = AccountNFTs(account=wallet.classic_address)
+                response = client.request(acct_nfts)
+                nfts = response.result.get("account_nfts", [])
+                if nfts:
+                    st.write("Your NFTs:")
+                    for nft in nfts:
+                        st.json(nft)
+                else:
+                    st.info("No NFTs found in this account.")
+
+
+        # Section 2: Check Balance (only shown if wallet exists)
+        st.markdown("---")
+
+
+        st.header("Step 2: Mint NFT")
 
     st.markdown("---")
 
@@ -125,9 +147,10 @@ def main():
                         st.error(f"❌ Minting failed: {str(e)}")
             else:
                 st.error("Please enter a metadata URI")
-    else:
-        # Show info message if wallet not ready
-        st.info("👆 Please generate or import a wallet first to access minting features")
+        
+        if st.sidebar.button("Log Out"):
+            st.session_state.wallet = None
+            st.rerun()
     
     st.markdown("---")
     st.caption("Never share your private key or seed with anyone!")
