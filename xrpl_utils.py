@@ -1,10 +1,17 @@
+"""XRPL blockchain utilities and wallet operations."""
+
 from xrpl.clients import JsonRpcClient
 from xrpl.wallet import generate_faucet_wallet
 from xrpl.models.requests.account_info import AccountInfo
+from config import XRPL_TESTNET_URL
 
 
 def connect_xrpl():
-    client = JsonRpcClient("https://s.altnet.rippletest.net:51234/")
+    """Connect to XRPL testnet (Altnet).
+
+    Returns a JsonRpcClient instance.
+    """
+    client = JsonRpcClient(XRPL_TESTNET_URL)
     return client
 
 
