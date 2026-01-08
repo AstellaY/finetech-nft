@@ -72,9 +72,24 @@ def main():
         st.write(MSG_WALLET_ADDRESS, wallet.classic_address)
         st.write(MSG_WALLET_SEED, wallet.seed)
         
-        bal = xrpl_utils.get_account_balance(client, wallet.classic_address)
-        st.write(MSG_WALLET_BALANCE, bal)
-        
+        if st.button("View Account Balance & Info"):
+            with st.spinner("Fetching account info"):
+                acct_info = xrpl_utils.get_account_info(client, wallet.classic_address)
+                if acct_info is None:
+                    st.error(MSG_NO_ACCOUNT)
+                else:
+                    st.write("Account: ", addr)
+                    bal = acct_info.get("Balance")
+                    flags = acct_info.get("Flags")
+                    ownercount = acct_info.get("OwnerCount")
+                    regularkey = acct_info.get("RegularKey")
+                    sequence = acct_info.get("Sequence")
+                    st.write("Balance: ", bal)
+                    st.write("Flags: ", flags)
+                    st.write("Owner Count: ", ownercount)
+                    st.write("Regular Key: ", regularkey)
+                    st.write("Sequence: ", sequence)
+
         if st.button("View NFT Holdings"):
             with st.spinner("Fetching NFTs from your collection"):
                 from xrpl.models.requests import AccountNFTs
@@ -88,10 +103,7 @@ def main():
                 else:
                     st.info("No NFTs found in this account.")
 
-
-        # Section 2: Check Balance (only shown if wallet exists)
         st.markdown("---")
-
 
         st.header("Step 2: Mint NFT")
 
