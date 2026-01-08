@@ -77,14 +77,22 @@ def main():
         
         if st.button("View NFT Holdings"):
             with st.spinner("Fetching NFTs from your collection"):
-                from xrpl.models.requests import AccountNFTs
-                acct_nfts = AccountNFTs(account=wallet.classic_address)
-                response = client.request(acct_nfts)
-                nfts = response.result.get("account_nfts", [])
+                results = get_tokens(st.session_state.wallet.classic_address)
+                nfts = results.get("account_nfts", [])
+
                 if nfts:
                     st.write("Your NFTs:")
                     for nft in nfts:
-                        st.json(nft)
+                        with st.container(border=True):
+                            import xrpl
+                            uri_hex = nft.get("URI", "")
+                            plain_uri = xrpl.utils.hex_to_str(uri_hex) if uri_hex else "N/A"
+                            st.write(f"**NFT ID:** {nft.get('NFTokenID', 'N/A')}")
+                            st.write(f"**URI:** {plain_uri}")
+
+                            with st.expander("Technical Details"):
+                                st.json(nft)
+                                 
                 else:
                     st.info("No NFTs found in this account.")
 
