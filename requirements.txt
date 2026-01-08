@@ -1,2 +1,2 @@
-streamlit
-xrpl-py
+streamlit==1.28.1
+xrpl-py==3.0.0

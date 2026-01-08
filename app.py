@@ -14,14 +14,20 @@ from config import (
 )
 
 
+@st.cache_resource
+def get_xrpl_client():
+    """Get cached XRPL client to avoid redundant connections."""
+    return xrpl_utils.connect_xrpl()
+
+
 def main():
     """Main Streamlit app."""
     # Header
     st.title(APP_TITLE)
     st.write(f"Welcome to {APP_SUBTITLE}")
 
-    # Connect to XRPL
-    client = xrpl_utils.connect_xrpl()
+    # Connect to XRPL (cached)
+    client = get_xrpl_client()
     st.success(MSG_CONNECTED)
 
     # Section 1: Generate Wallet
