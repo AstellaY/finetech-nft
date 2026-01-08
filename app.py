@@ -15,7 +15,7 @@ from config import (
     MSG_MINTING_FUTURE,
 )
 
-
+#decorator to cache the XRPL client connection (avoids redundant API calls on every re-run)
 @st.cache_resource
 def get_xrpl_client():
     """Get cached XRPL client to avoid redundant connections."""
@@ -42,6 +42,9 @@ def main():
         st.write(MSG_WALLET_SEED, wallet.seed)
         bal = xrpl_utils.get_account_balance(client, wallet.classic_address)
         st.write(MSG_WALLET_BALANCE, bal)
+
+        if st.button("Mint a New NFT"):
+            st.info(MSG_MINTING_FUTURE)
 
     st.markdown("---")
 
