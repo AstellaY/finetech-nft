@@ -75,8 +75,24 @@ def main():
         bal = xrpl_utils.get_account_balance(client, wallet.classic_address)
         st.write(MSG_WALLET_BALANCE, bal)
         
+        if st.button("View NFT Holdings"):
+            with st.spinner("Fetching NFTs from your collection"):
+                from xrpl.models.requests import AccountNFTs
+                acct_nfts = AccountNFTs(account=wallet.classic_address)
+                response = client.request(acct_nfts)
+                nfts = response.result.get("account_nfts", [])
+                if nfts:
+                    st.write("Your NFTs:")
+                    for nft in nfts:
+                        st.json(nft)
+                else:
+                    st.info("No NFTs found in this account.")
+
+
         # Section 2: Check Balance (only shown if wallet exists)
         st.markdown("---")
+
+
         st.header("Step 2: Mint NFT")
         
         nft_uri = st.text_input("Enter NFT metadata URI", placeholder="https://example.com/nft-metadata.json")
