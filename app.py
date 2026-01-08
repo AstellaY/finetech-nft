@@ -1,6 +1,7 @@
 """finetech NFT — Streamlit UI frontend for XRPL testnet interactions."""
 
 import streamlit as st
+import xrpl
 import xrpl_utils
 from xrpl_utils import mint_token
 from config import (
@@ -92,14 +93,13 @@ def main():
 
         if st.button("View NFT Holdings"):
             with st.spinner("Fetching NFTs from your collection"):
-                results = get_tokens(st.session_state.wallet.classic_address)
+                results = xrpl_utils.get_tokens(st.session_state.wallet.classic_address)
                 nfts = results.get("account_nfts", [])
 
                 if nfts:
                     st.write("Your NFTs:")
                     for nft in nfts:
-                        with st.container(border=True):
-                            import xrpl
+                        with st.container():
                             uri_hex = nft.get("URI", "")
                             plain_uri = xrpl.utils.hex_to_str(uri_hex) if uri_hex else "N/A"
                             st.write(f"**NFT ID:** {nft.get('NFTokenID', 'N/A')}")
@@ -107,7 +107,6 @@ def main():
 
                             with st.expander("Technical Details"):
                                 st.json(nft)
-                                 
                 else:
                     st.info("No NFTs found in this account.")
 
