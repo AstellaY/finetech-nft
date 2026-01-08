@@ -41,7 +41,7 @@ def get_account_balance(client, address):
     if balance is None:
         return None
     try:
-        return int(balance) / 1_000_000
+        return int(balance)
     except Exception:
         try:
             return float(balance)
