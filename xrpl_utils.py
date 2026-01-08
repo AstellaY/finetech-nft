@@ -13,6 +13,7 @@ def connect_xrpl():
     """Connect to XRPL testnet (Altnet).
 
     Returns a JsonRpcClient instance.
+    Note that JsonRpcClient is a class - input is     the testnet URL
     """
     client = JsonRpcClient(XRPL_TESTNET_URL)
     return client
@@ -47,15 +48,24 @@ def get_account_balance(client, address):
         except Exception:
             return None
 
+def get_account_info(client, address):
+    """Return account info for a given classic address.
 
+    Returns a dictionary with account data or None if account not found.
+    """
+    try:
+        acct_info = AccountInfo(account=address, ledger_index="validated", strict=True)
+        response = client.request(acct_info)
+        result = getattr(response, "result", {})
+        account_data = result.get("account_data")
+        return account_data #returns a dictionary representing account data
+    except Exception:
+        return None
 
+def mint_nft(client, wallet, metadata):
+    # Placeholder for minting logic; to be implemented later.
 
-
-
-
-
-
-
+    raise NotImplementedError()
 def mint_token(seed, uri, flags=8, transfer_fee=0, taxon=0):
     """Mint an NFT on XRPL testnet.
     
@@ -137,6 +147,3 @@ def burn_token(seed, nftoken_id):
     except xrpl.transaction.XRPLReliableSubmissionException as e:
         reply = f"Submit failed: {e}"
     return reply
-
-
- 

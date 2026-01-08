@@ -72,10 +72,45 @@ def main():
         
         bal = xrpl_utils.get_account_balance(client, wallet.classic_address)
         st.write(MSG_WALLET_BALANCE, bal)
-        
-        # Section 2: Check Balance (only shown if wallet exists)
-        st.markdown("---")
-        st.subheader("Step 2: Mint NFT")
+
+    st.markdown("---")
+
+    # Section 2: Check Balance
+    st.header("Step 2: Check Balance for an Existing Address")
+    addr = st.text_input("Enter a classic address (r...) to check balance")
+    if addr:
+        bal = xrpl_utils.get_account_balance(client, addr)
+        if bal is None:
+            st.error(MSG_NO_ACCOUNT)
+        else:
+            st.write("Balance (XRP):", bal)
+
+    st.markdown("\n\n") # Creates an empty line where \n is a newline, 2x newline = empty line
+    st.info(MSG_MINTING_FUTURE)
+
+    # Section 3: View Account Info (Future Feature)
+    st.header("Step 3: View Account Info (Future Feature)")
+    addr = st.text_input("Enter a classic address (r...) to view account info")
+    if addr:
+        acct_info = xrpl_utils.get_account_info(client, addr)
+        if acct_info is None:
+            st.error(MSG_NO_ACCOUNT)
+        else:
+            st.write("Account: ", addr)
+            bal = acct_info.get("Balance: ")
+            flags = acct_info.get("Flags: ")
+            ownercount = acct_info.get("OwnerCount")
+            regularkey = acct_info.get("RegularKey")
+            sequence = acct_info.get("Sequence")
+            st.write("Balance", bal)
+            st.write("Flags", flags)
+            st.write("Owner Count", ownercount)
+            st.write("Regular Key", regularkey)
+            st.write("Sequence", sequence)
+    
+    # Section 4: Mint NFT (only shown if wallet exists)
+    if st.session_state.wallet:
+        st.subheader("Step 4: Mint NFT")
         
         nft_uri = st.text_input("Enter NFT metadata URI", placeholder="https://example.com/nft-metadata.json")
         
@@ -100,5 +135,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

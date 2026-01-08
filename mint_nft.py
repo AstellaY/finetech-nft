@@ -19,16 +19,13 @@ def mint_token(seed, uri, flags=8, transfer_fee=0, taxon=0):
         nftoken_taxon=int(taxon)
     )
 #Submit the transaction and return results.
-        reply=""
+    reply=""
     try:
         response=xrpl.transaction.submit_and_wait(mint_tx,client,minter_wallet)
         reply=response.result
     except xrpl.transaction.XRPLReliableSubmissionException as e:
         reply=f"Submit failed: {e}"
     return reply
-
-
-
 
 
 def get_tokens(account):
