@@ -9,6 +9,8 @@ APP_SUBTITLE = "Simple XRPL testnet demo"
 
 # UI Messages
 MSG_CONNECTED = "Connected to XRPL testnet"
+MSG_PUBLIC_KEY = "**Public Key:**"
+MSG_PRIVATE_KEY = "**Private Key (keep private):**"
 MSG_WALLET_ADDRESS = "**Classic Address:**"
 MSG_WALLET_SEED = "**Seed (keep private):**"
 MSG_WALLET_BALANCE = "**Balance (XRP):**"

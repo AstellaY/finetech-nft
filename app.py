@@ -6,6 +6,8 @@ from config import (
     APP_TITLE,
     APP_SUBTITLE,
     MSG_CONNECTED,
+    MSG_PUBLIC_KEY,
+    MSG_PRIVATE_KEY,
     MSG_WALLET_ADDRESS,
     MSG_WALLET_SEED,
     MSG_WALLET_BALANCE,
@@ -34,6 +36,8 @@ def main():
     st.header("Create / Inspect Testnet Wallet")
     if st.button("Generate Testnet Wallet"):
         wallet = xrpl_utils.generate_test_wallet(client)
+        st.write(MSG_PUBLIC_KEY, wallet.public_key)
+        st.write(MSG_PRIVATE_KEY, wallet.private_key)
         st.write(MSG_WALLET_ADDRESS, wallet.classic_address)
         st.write(MSG_WALLET_SEED, wallet.seed)
         bal = xrpl_utils.get_account_balance(client, wallet.classic_address)
@@ -54,7 +58,5 @@ def main():
     st.markdown("\n\n")
     st.info(MSG_MINTING_FUTURE)
 
-
 if __name__ == "__main__":
-    main()
-
+    main(  )

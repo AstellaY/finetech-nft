@@ -10,6 +10,7 @@ def connect_xrpl():
     """Connect to XRPL testnet (Altnet).
 
     Returns a JsonRpcClient instance.
+    Note that JsonRpcClient is a class - input is     the testnet URL
     """
     client = JsonRpcClient(XRPL_TESTNET_URL)
     return client
@@ -47,4 +48,5 @@ def get_account_balance(client, address):
 
 def mint_nft(client, wallet, metadata):
     # Placeholder for minting logic; to be implemented later.
+
     raise NotImplementedError()
