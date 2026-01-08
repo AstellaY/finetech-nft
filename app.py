@@ -4,7 +4,6 @@ import streamlit as st
 import xrpl
 import xrpl_utils
 from xrpl_utils import mint_token
-from xrpl_utils import get_tokens
 from config import (
     APP_TITLE,
     APP_SUBTITLE,
@@ -67,12 +66,17 @@ def main():
     else:
         wallet = st.session_state.wallet
         st.header("💼 Your Wallet Details")
-        
-        wallet = st.session_state.wallet
-        st.write(MSG_PUBLIC_KEY, wallet.public_key)
-        st.write(MSG_PRIVATE_KEY, wallet.private_key)
+
+        # Mask private key for safety (show only start/end)
+        def _mask(val: str) -> str:
+            if not val:
+                return "N/A"
+            return val if len(val) <= 8 else f"{val[:4]}...{val[-4:]}"
+
+        st.write(MSG_PUBLIC_KEY, _mask(getattr(wallet, "public_key", "")))
+        st.write(MSG_PRIVATE_KEY, _mask(getattr(wallet, "private_key", "")))
         st.write(MSG_WALLET_ADDRESS, wallet.classic_address)
-        st.write(MSG_WALLET_SEED, wallet.seed)
+        st.write(MSG_WALLET_SEED, _mask(getattr(wallet, "seed", "")))
         
         if st.button("View Account Balance & Info"):
             with st.spinner("Fetching account info"):
@@ -125,16 +129,30 @@ def main():
         nft_uri = st.text_input("Enter NFT metadata URI", placeholder="https://example.com/nft-metadata.json")
         
         if st.button("🎨 Mint NFT"):
-            if nft_uri:
-                with st.spinner("Minting NFT... this may take a moment"):
-                    try:
-                        result = mint_token(wallet.seed, nft_uri)
-                        st.success("✅ NFT minted successfully!")
-                        st.write("**Transaction Result:**", result)
-                    except Exception as e:
-                        st.error(f"❌ Minting failed: {str(e)}")
-            else:
+            if not nft_uri:
                 st.error("Please enter a metadata URI")
+            else:
+                # Check balance before attempting to mint
+                bal = xrpl_utils.get_account_balance(client, wallet.classic_address)
+                if bal is None:
+                    st.error("Unable to read account balance. Try again.")
+                elif bal < 0.1:
+                    st.error(f"Insufficient balance to mint (need >= 0.1 XRP). Current: {bal} XRP")
+                else:
+                    with st.spinner("Minting NFT... this may take a moment"):
+                        try:
+                            result = mint_token(wallet.seed, nft_uri)
+                            # Try to extract tx hash from result
+                            tx_hash = None
+                            if isinstance(result, dict):
+                                tx_hash = result.get("tx_json", {}).get("hash") or result.get("hash") or result.get("engine_result")
+                            st.success("✅ NFT minted successfully!")
+                            if tx_hash:
+                                st.write("Transaction hash:", tx_hash)
+                            else:
+                                st.write("**Transaction Result:**", result)
+                        except Exception as e:
+                            st.error(f"❌ Minting failed: {str(e)}")
         
         if st.sidebar.button("Log Out"):
             st.session_state.wallet = None
